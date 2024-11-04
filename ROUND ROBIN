@@ -1,59 +1,60 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct rr {
-    int pid;
-    int at;
-    int tempat;
-    int bt;
-    int ct;
-    int tat;
-    int wt;
-};
+int main() {
+    int n;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
 
-int evaluate(struct rr *p, int n, int qt) {
-    int time = 0;
-    int comp = 0;
+    int at[n], wt[n], bt[n], rem_bt[n], tat[n], ct[n];
 
+    // Input arrival time and burst time for each process
     for (int i = 0; i < n; i++) {
-        p[i].ct = p[i].tat = p[i].wt = 0;
-        p[i].tempat = p[i].bt;
+        printf("Enter the arrival time and burst time for process %d: ", i + 1);
+        scanf("%d %d", &at[i], &bt[i]);
+        rem_bt[i] = bt[i];   // Initialize remaining burst time as burst time
+        wt[i] = ct[i] = tat[i] = 0;
     }
 
-    while (comp < n) {
+    int tq;
+    printf("Enter the time quantum: ");
+    scanf("%d", &tq);
+
+    int completed = 0, time = 0;
+
+    // Process loop
+    while (completed != n) {
+        int done = 1;
+
         for (int i = 0; i < n; i++) {
-            if (p[i].at <= time && p[i].tempat > 0) {
-                if (p[i].tempat > qt) {
-                    time += qt;
-                    p[i].tempat -= qt;
+            // Check if process has arrived and has remaining burst time
+            if (time >= at[i] && rem_bt[i] > 0) {
+                done = 0;  // A process is found for this time quantum
+
+                if (rem_bt[i] > tq) {
+                    time += tq;       // Increment time by time quantum
+                    rem_bt[i] -= tq;  // Reduce remaining burst time
                 } else {
-                    time += p[i].tempat;
-                    p[i].tempat = 0;
-                    comp++;
-                    p[i].ct = time;
+                    time += rem_bt[i];    // Add remaining time to current time
+                    rem_bt[i] = 0;        // Process is completed
+                    ct[i] = time;         // Completion time
+                    tat[i] = ct[i] - at[i]; // Turnaround time
+                    wt[i] = tat[i] - bt[i]; // Waiting time
+                    completed++;           // Increment completed count
                 }
             }
         }
+
+        if (done == 1) {
+            time++;  // Increment time if no process was ready
+        }
     }
 
-    printf("Process ID\tBurst Time\tCompletion Time\n");
+    // Output results
+    printf("Process\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time\n");
     for (int i = 0; i < n; i++) {
-        printf("%d\t\t%d\t\t%d\n", p[i].pid, p[i].bt, p[i].ct);
+        printf("%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", i + 1, at[i], bt[i], ct[i], tat[i], wt[i]);
     }
-
-    return 0;
-}
-
-int main() {
-    int n, qt;
-    scanf("%d %d", &n, &qt);
-
-    struct rr *q1 = (struct rr *)malloc(n * sizeof(struct rr));
-    for (int i = 0; i < n; i++) {
-        scanf("%d %d %d", &q1[i].pid, &q1[i].at, &q1[i].bt);
-    }
-
-    evaluate(q1, n, qt);
 
     return 0;
 }
