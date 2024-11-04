@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Process {
+    int pid;
+    int at;
+    int bt;
+    int wt;
+    int tat;
+    int completed;
+};
+
+void sort_arrival_time(struct Process process[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (process[j].at > process[j + 1].at) {
+                struct Process temp = process[j];
+                process[j] = process[j + 1];
+                process[j + 1] = temp;
+            }
+        }
+    }
+}
+
+void fill_wt_sjf(struct Process process[], int n) {
+    int currentTime = 0, completed = 0;
+
+    while (completed < n) {
+        int shortestJobIndex = -1;
+        int shortestBurstTime = 1e9;
+
+        for (int i = 0; i < n; i++) {
+            if (process[i].at <= currentTime && !process[i].completed && process[i].bt < shortestBurstTime) {
+                shortestJobIndex = i;
+                shortestBurstTime = process[i].bt;
+            }
+        }
+
+        if (shortestJobIndex == -1) {
+            currentTime++;
+        } else {
+            process[shortestJobIndex].wt = currentTime - process[shortestJobIndex].at;
+            process[shortestJobIndex].tat = process[shortestJobIndex].wt + process[shortestJobIndex].bt;
+            process[shortestJobIndex].completed = 1;
+            currentTime += process[shortestJobIndex].bt;
+            completed++;
+        }
+    }
+}
+
+int main() {
+    int n;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+    struct Process process[n];
+
+    printf("Enter Process ID, Arrival Time, and Burst Time:\n");
+    for (int i = 0; i < n; i++) {
+        printf("Process %d: ", i + 1);
+        scanf("%d %d %d", &process[i].pid, &process[i].at, &process[i].bt);
+        process[i].completed = 0;
+    }
+
+    sort_arrival_time(process, n);
+    fill_wt_sjf(process, n);
+
+    printf("\nID\tArrival_Time\tBurst_Time\tWaiting_Time\tTurnaround_Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t\t%d\t\t%d\t\t%d\n", process[i].pid, process[i].at, process[i].bt, process[i].wt, process[i].tat);
+    }
+
+    return 0;
+}
