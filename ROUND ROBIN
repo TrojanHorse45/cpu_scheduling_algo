@@ -1,1 +1,59 @@
+#include <stdio.h>
+#include <stdlib.h>
 
+struct rr {
+    int pid;
+    int at;
+    int tempat;
+    int bt;
+    int ct;
+    int tat;
+    int wt;
+};
+
+int evaluate(struct rr *p, int n, int qt) {
+    int time = 0;
+    int comp = 0;
+
+    for (int i = 0; i < n; i++) {
+        p[i].ct = p[i].tat = p[i].wt = 0;
+        p[i].tempat = p[i].bt;
+    }
+
+    while (comp < n) {
+        for (int i = 0; i < n; i++) {
+            if (p[i].at <= time && p[i].tempat > 0) {
+                if (p[i].tempat > qt) {
+                    time += qt;
+                    p[i].tempat -= qt;
+                } else {
+                    time += p[i].tempat;
+                    p[i].tempat = 0;
+                    comp++;
+                    p[i].ct = time;
+                }
+            }
+        }
+    }
+
+    printf("Process ID\tBurst Time\tCompletion Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t\t%d\t\t%d\n", p[i].pid, p[i].bt, p[i].ct);
+    }
+
+    return 0;
+}
+
+int main() {
+    int n, qt;
+    scanf("%d %d", &n, &qt);
+
+    struct rr *q1 = (struct rr *)malloc(n * sizeof(struct rr));
+    for (int i = 0; i < n; i++) {
+        scanf("%d %d %d", &q1[i].pid, &q1[i].at, &q1[i].bt);
+    }
+
+    evaluate(q1, n, qt);
+
+    return 0;
+}
