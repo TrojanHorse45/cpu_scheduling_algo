@@ -1,1 +1,61 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    int at[n], bt[n], wt[n], ct[n], tat[n], priority[n];
+    int visited[n]; // Track visited processes
+
+    // Initialize visited array
+    for (int i = 0; i < n; i++) {
+        visited[i] = 0;
+    }
+
+    // Input arrival times, burst times, and priorities
+    for (int i = 0; i < n; i++) {
+        printf("Enter the arrival time, burst time, and priority for process %d: ", i + 1);
+        scanf("%d %d %d", &at[i], &bt[i], &priority[i]);
+    }
+
+    int completed = 0, time = 0, minidx;
+
+    // Scheduling loop
+    while (completed != n) {
+        minidx = -1;
+
+        // Find the process with the highest priority that has arrived
+        for (int i = 0; i < n; i++) {
+            if (at[i] <= time && !visited[i]) {
+                if (minidx == -1 || priority[i] < priority[minidx]) {
+                    minidx = i;
+                }
+            }
+        }
+
+        // If no process is found, increment time
+        if (minidx == -1) {
+            time++;
+        } else {
+            // Update time and calculate completion, turnaround, and waiting times
+            time += bt[minidx];
+            ct[minidx] = time;
+            tat[minidx] = ct[minidx] - at[minidx];
+            wt[minidx] = tat[minidx] - bt[minidx];
+            visited[minidx] = 1;
+            completed++;
+        }
+    }
+
+    // Output results
+    printf("\nProcess\tArrival Time\tBurst Time\tPriority\tCompletion Time\tTurnaround Time\tWaiting Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", 
+               i + 1, at[i], bt[i], priority[i], ct[i], tat[i], wt[i]);
+    }
+
+    return 0;
+}
 
